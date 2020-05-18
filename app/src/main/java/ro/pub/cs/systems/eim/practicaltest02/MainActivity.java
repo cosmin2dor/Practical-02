@@ -3,6 +3,7 @@ package ro.pub.cs.systems.eim.practicaltest02;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -187,6 +189,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class BitCoinClientAsync extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String data = null;
+
+            try {
+                Socket socket = new Socket(clientAddress, clientPort);
+
+                PrintWriter printWriter = Utilities.getWriter(socket);
+                printWriter.println(currency);
+
+                BufferedReader bufferedReader = Utilities.getReader(socket);
+
+                data = bufferedReader.readLine();
+
+                socket.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return data;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            responseText.setText(s);
+        }
+    }
+
     private GetButtonOnClickListener getButtonOnClickListener = new GetButtonOnClickListener();
     private class GetButtonOnClickListener implements View.OnClickListener {
         @Override
@@ -194,6 +227,9 @@ public class MainActivity extends AppCompatActivity {
             clientAddress = addressText.getText().toString();
             clientPort = Integer.parseInt(clientPortText.getText().toString());
             currency = spinner.getSelectedItem().toString();
+
+            BitCoinClientAsync bitCoinClientAsync = new BitCoinClientAsync();
+            bitCoinClientAsync.execute();
         }
     }
 
