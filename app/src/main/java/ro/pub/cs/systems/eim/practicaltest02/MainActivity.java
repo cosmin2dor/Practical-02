@@ -145,9 +145,12 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // There is local data, check if still valid
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-                LocalTime cacheUpdatedAt = LocalTime.parse(cache.getUpdated(), formatter);
+                LocalTime cacheUpdatedAt = LocalTime.parse(cache.getUpdated(), formatter).plusHours(3);
 
-                if (LocalTime.now().minusSeconds(60).isBefore(cacheUpdatedAt)) {
+                Log.v(Constants.TAG, cacheUpdatedAt.toString());
+                Log.v(Constants.TAG, LocalTime.now().toString());
+
+                if (LocalTime.now().minusMinutes(1).isAfter(cacheUpdatedAt)) {
                     // Older than one minute, update it
                     Log.v(Constants.TAG, "Older cache");
                     data = getPriceOf(currency, updatePrice());
